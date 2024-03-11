@@ -21,7 +21,7 @@ public class UserService : IUserService
 
     public void AddUser(User user)
     {        
-        this.users.Add(user);                
+        users.Add(user);                
     }
 
     public void DeleteUser(string email)
