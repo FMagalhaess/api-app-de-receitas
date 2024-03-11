@@ -68,15 +68,20 @@ public class RecipeService : IRecipeService
         return this.recipes.ToList();
     }
 
-    public void UpdateRecipe(Recipe item)
+    public Recipe UpdateRecipe(Recipe item)
     {
         var toUpdate = this.recipes.Where(x => x.Name.ToLower() == item.Name.ToLower()).FirstOrDefault();
-
-        toUpdate.Name = item.Name;
-        toUpdate.RecipeType = item.RecipeType;
-        toUpdate.PreparationTime = item.PreparationTime;
-        toUpdate.Ingredients = item.Ingredients;
-        toUpdate.Directions = item.Directions;
-        toUpdate.Rating = item.Rating;
+        if (toUpdate != null)
+        {
+            toUpdate.Name = item.Name;
+            toUpdate.RecipeType = item.RecipeType;
+            toUpdate.PreparationTime = item.PreparationTime;
+            toUpdate.Ingredients = item.Ingredients;
+            toUpdate.Directions = item.Directions;
+            toUpdate.Rating = item.Rating;
+            return toUpdate;
+        }        
+        throw new Exception("recipe not found");
+        
     }
 }
