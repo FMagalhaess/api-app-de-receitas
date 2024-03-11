@@ -45,7 +45,15 @@ public class UserService : IUserService
 
     public User GetUser(string email)
     {
-        return this.users.Where(x => x.Email.ToLower() == email.ToLower()).FirstOrDefault();
+        User toReturn = users.Where(x => x.Email.ToLower() == email.ToLower()).FirstOrDefault();
+        if (toReturn != null)
+        {
+            return toReturn;
+        }
+        else
+        {
+            throw new Exception("Nao Encontrado");
+        }
     }
 
 }
