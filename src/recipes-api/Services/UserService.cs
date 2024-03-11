@@ -26,8 +26,15 @@ public class UserService : IUserService
 
     public void DeleteUser(string email)
     {        
-        var toRemove = this.users.Where(x => x.Email.ToLower() == email.ToLower()).FirstOrDefault();
-        this.users.Remove(toRemove);              
+        var toRemove = users.Where(x => x.Email.ToLower() == email.ToLower()).FirstOrDefault();
+        if (toRemove != null)
+        {
+            users.Remove(toRemove);              
+        }
+        else
+        {
+            throw new Exception("Nao achado");
+        }
     }
 
     public void UpdateUser(User item)
