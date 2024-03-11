@@ -33,9 +33,10 @@ public class RecipeService : IRecipeService
         };
     }
 
-    public void AddRecipe(Recipe item)
+    public Recipe AddRecipe(Recipe item)
     {
-        this.recipes.Add(item);
+        recipes.Add(item);
+        return item;
     }
 
     public void DeleteRecipe(string name)
@@ -58,7 +59,6 @@ public class RecipeService : IRecipeService
         }
         else
         {
-            Console.WriteLine(name);
             throw new Exception("Nao Encontrado");
         }
     }
