@@ -70,6 +70,7 @@ public class RecipesController : ControllerBase
     [HttpDelete("{name}")]
     public IActionResult Delete(string name)
     {
-        throw new NotImplementedException();
+        _service.DeleteRecipe(name);
+        return NoContent();
     }
 }
