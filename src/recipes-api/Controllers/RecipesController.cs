@@ -41,8 +41,15 @@ public class RecipesController : ControllerBase
     [HttpPost]
     public IActionResult Create([FromBody] Recipe recipe)
     {
+        try
+        {
         Recipe createdRecipe = _service.AddRecipe(recipe);
         return Created("", createdRecipe);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { ex.Message });
+        }
     }
 
     [HttpPut("{name}")]
@@ -50,7 +57,8 @@ public class RecipesController : ControllerBase
     {
         try
         {
-            _service.UpdateRecipe(recipe);
+            _service.RecipeExists(name);
+            _service.UpdateRecipe(recipe, name);
             return NoContent();
         }
         catch(Exception ex)

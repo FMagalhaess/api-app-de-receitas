@@ -8,7 +8,7 @@ public interface IRecipeService
     List<Recipe> GetRecipes();
     Recipe GetRecipe(string name);
     Recipe AddRecipe(Recipe item);
-    Recipe UpdateRecipe(Recipe item);
+    Recipe UpdateRecipe(Recipe item, string name);
     void DeleteRecipe(string name);
     bool RecipeExists(string name);
 }

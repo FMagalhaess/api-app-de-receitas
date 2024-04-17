@@ -35,6 +35,7 @@ public class RecipeService : IRecipeService
 
     public Recipe AddRecipe(Recipe item)
     {
+        ExceptionTryCatch(item);
         recipes.Add(item);
         return item;
     }
@@ -42,12 +43,19 @@ public class RecipeService : IRecipeService
     public void DeleteRecipe(string name)
     {
         var toRemove = this.recipes.Where(x => x.Name.ToLower() == name.ToLower()).FirstOrDefault();
-        this.recipes.Remove(toRemove);
+        recipes.Remove(toRemove);
     }
 
     public bool RecipeExists(string name)
     {
-        return this.recipes.Any(x => x.Name.ToLower() == name.ToLower());
+        if (recipes.Any(x => x.Name.ToLower() == name.ToLower()))
+        {
+            return true;
+        }
+        else
+        {
+            throw new Exception("Nao Encontrado");
+        }
     }
 
     public Recipe GetRecipe(string name)
@@ -65,12 +73,13 @@ public class RecipeService : IRecipeService
 
     public List<Recipe> GetRecipes()
     {
-        return this.recipes.ToList();
+        return recipes.ToList();
     }
 
-    public Recipe UpdateRecipe(Recipe item)
+    public Recipe UpdateRecipe(Recipe item, string name)
     {
-        var toUpdate = this.recipes.Where(x => x.Name.ToLower() == item.Name.ToLower()).FirstOrDefault();
+        var toUpdate = recipes.Where(x => x.Name.ToLower() == name.ToLower()).FirstOrDefault();
+        ExceptionTryCatch(item);
         if (toUpdate != null)
         {
             toUpdate.Name = item.Name;
@@ -84,4 +93,29 @@ public class RecipeService : IRecipeService
         throw new Exception("recipe not found");
         
     }
+    public Exception ExceptionTryCatch(Recipe item)
+    {
+        if (item.Name == null || item.Name == "" || item.Name == " " || item.Name == string.Empty)
+        {
+            throw new Exception("Name is required");
+        }
+        if (item.Rating < 0 || item.Rating > 11)
+        {
+            throw new Exception("Rating must be between 0 and 10");
+        }
+        if (item.PreparationTime < 0)
+        {
+            throw new Exception("Preparation time must be greater than 0");
+        }
+        if (item.Ingredients == null || item.Ingredients.Count == 0)
+        {
+            throw new Exception("Ingredients are required");
+        }
+        if (item.Directions == null || item.Directions == "" || item.Directions == " " || item.Directions == string.Empty)
+        {
+            throw new Exception("Directions are required");
+        }
+        return null;
+    }
 }
+
