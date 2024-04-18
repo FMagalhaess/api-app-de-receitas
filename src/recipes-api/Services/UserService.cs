@@ -10,36 +10,38 @@ public class UserService : IUserService
 
     public UserService()
     {
-        this.users = new List<User>
+        users = new List<User>
         {
             new User { 
-                Email = "pessoa@betrybe.com",
-                Name = "Pessoa tryber",
-                Password = "senhaTryber"}
+                Email = "exemplo@email.com",
+                Name = "Pessoa legal",
+                Password = "superSenhaSegura"}
         };
     }
 
     public void AddUser(User user)
-    {        
-        users.Add(user);                
+    {
+        try
+        {
+            ExceptionTryCatch(user);
+            users.Add(user);                
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
     }
 
     public void DeleteUser(string email)
     {        
         var toRemove = users.Where(x => x.Email.ToLower() == email.ToLower()).FirstOrDefault();
-        if (toRemove != null)
-        {
-            users.Remove(toRemove);              
-        }
-        else
-        {
-            throw new Exception("Nao achado");
-        }
+        if (toRemove != null) users.Remove(toRemove);
+        else throw new Exception("Nao achado");
     }
 
     public void UpdateUser(User item)
     {
-        var toUpdate = this.users.Where(x => x.Email.ToLower() == item.Email.ToLower()).FirstOrDefault();
+        var toUpdate = users.Where(x => x.Email.ToLower() == item.Email.ToLower()).FirstOrDefault();
 
         toUpdate.Name = item.Name;
         toUpdate.Password = item.Password;
@@ -47,20 +49,19 @@ public class UserService : IUserService
 
     public bool UserExists(string email)
     {
-        return this.users.Any(x => x.Email.ToLower() == email.ToLower());
+        return users.Any(x => x.Email.ToLower() == email.ToLower());
     }
 
     public User GetUser(string email)
     {
         User toReturn = users.Where(x => x.Email.ToLower() == email.ToLower()).FirstOrDefault();
-        if (toReturn != null)
-        {
-            return toReturn;
-        }
-        else
-        {
-            throw new Exception("Nao Encontrado");
-        }
+        if (toReturn != null) return toReturn;
+        else  throw new Exception("Nao Encontrado");
     }
-
+    public Exception ExceptionTryCatch(User item)
+    {
+        if (item.Email == null || item.Name == null || item.Password == null) throw new Exception("Campos obrigatorios nao preenchidos");
+        if (UserExists(item.Email)) throw new Exception("Usuario ja existe");
+        return null;
+    }
 }

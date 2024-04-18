@@ -17,10 +17,9 @@ public class UserController : ControllerBase
 
     public UserController(IUserService service)
     {
-        this._service = service;
+        _service = service;
     }
 
-    // 6 - Sua aplicação deve ter o endpoint GET /user/:email
     [HttpGet("{email}", Name = "GetUser")]
     public IActionResult Get(string email)
     {
@@ -34,22 +33,25 @@ public class UserController : ControllerBase
         }
     }
 
-    // 7 - Sua aplicação deve ter o endpoint POST /user
     [HttpPost]
     public IActionResult Create([FromBody] User user)
     {
-        _service.AddUser(user);
-        return Created("", user);
+        try
+        {
+            _service.AddUser(user);
+            return Created("", user);
+        } catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
-    // "8 - Sua aplicação deve ter o endpoint PUT /user
     [HttpPut("{email}")]
     public IActionResult Update(string email, [FromBody] User user)
     {
         throw new NotImplementedException();
     }
 
-    // 9 - Sua aplicação deve ter o endpoint DEL /user
     [HttpDelete("{email}")]
     public IActionResult Delete(string email)
     {
