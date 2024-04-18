@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using recipes_api.Repositories;
 
 namespace recipes_api.Controllers;
 
@@ -14,15 +15,17 @@ namespace recipes_api.Controllers;
 public class RecipesController : ControllerBase
 {
     public readonly IRecipeService _service;
+    public readonly IRecipeRepository _repository;
 
-    public RecipesController(IRecipeService service)
+    public RecipesController(IRecipeService service, IRecipeRepository repository)
     {
-        this._service = service;
+        _service = service;
+        _repository = repository;
     }
     [HttpGet]
     public IActionResult Get()
     {
-        return Ok(_service.GetRecipes());
+        return Ok(_repository.GetRecipes());
     }
 
     [HttpGet("{name}", Name = "GetRecipe")]
@@ -30,7 +33,7 @@ public class RecipesController : ControllerBase
     {
         try
         {
-            return Ok(_service.GetRecipe(name));
+            return Ok(_repository.GetRecipe(name));
         }
         catch (Exception ex)
         {
@@ -43,7 +46,7 @@ public class RecipesController : ControllerBase
     {
         try
         {
-        Recipe createdRecipe = _service.AddRecipe(recipe);
+        Recipe createdRecipe = _repository.AddRecipe(recipe);
         return Created("", createdRecipe);
         }
         catch (Exception ex)
@@ -57,8 +60,8 @@ public class RecipesController : ControllerBase
     {
         try
         {
-            _service.RecipeExists(name);
-            _service.UpdateRecipe(recipe, name);
+            _repository.RecipeExists(name);
+            _repository.UpdateRecipe(recipe, name);
             return NoContent();
         }
         catch(Exception ex)
@@ -71,7 +74,7 @@ public class RecipesController : ControllerBase
     [HttpDelete("{name}")]
     public IActionResult Delete(string name)
     {
-        _service.DeleteRecipe(name);
+        _repository.DeleteRecipe(name);
         return NoContent();
     }
 }

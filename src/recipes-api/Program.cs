@@ -14,10 +14,11 @@ builder.Services.AddSingleton<ICommentService, CommentService>();
 // Add services to the container.
 builder.Services.AddDbContext<RecipesContext>();
 builder.Services.AddScoped<IRecipesContext, RecipesContext>();
-builder.Services.AddScoped<RecipeRepository>();
+builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<CommentRepository>();
 builder.Services.AddScoped<IngredientsRepository>();
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
