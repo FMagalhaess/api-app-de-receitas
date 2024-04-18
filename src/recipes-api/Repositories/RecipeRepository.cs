@@ -27,6 +27,10 @@ public class RecipeRepository : IRecipeRepository
 
     public void DeleteRecipe(string name)
     {
+        if (!RecipeExists(name))
+        {
+            throw new Exception("Nao Encontrado");
+        }
         var toRemove = _context.Recipes.Where(x => x.Name.ToLower() == name.ToLower()).FirstOrDefault();
         _context.Recipes.Remove(toRemove);
         _context.SaveChanges();
