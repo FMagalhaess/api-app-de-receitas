@@ -1,3 +1,4 @@
+using recipes_api.Dto;
 using recipes_api.Models;
 using System.Collections.Generic;
 
@@ -15,4 +16,9 @@ public class Recipe
     public string Directions { get; set; }
 
     public int Rating { get; set; }
+
+    public static implicit operator Recipe(InputRecipeDto v)
+    {
+        throw new NotImplementedException();
+    }
 }

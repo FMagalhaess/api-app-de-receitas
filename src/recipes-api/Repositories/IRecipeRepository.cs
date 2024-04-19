@@ -1,13 +1,14 @@
+using recipes_api.Dto;
 using recipes_api.Models;
 
 namespace recipes_api.Repositories
 {
     public interface IRecipeRepository
     {
-        public Recipe AddRecipe(Recipe recipe);
+        public Recipe AddRecipe(InputRecipeDto recipe);
         public List<Recipe> GetRecipes();
         void DeleteRecipe(string name);
-        public Recipe UpdateRecipe(Recipe item, string name);
+        public Recipe UpdateRecipe(InputRecipeDto item, string name);
         bool RecipeExists(string name);
         Recipe GetRecipe(string name);
 

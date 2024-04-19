@@ -3,21 +3,37 @@ using recipes_api.Services;
 using recipes_api.Models;
 using recipes_api.Repositories;
 using Microsoft.EntityFrameworkCore;
-
+using recipes_api.Dto;
+namespace recipes_api.Repositories;
 public class RecipeRepository : IRecipeRepository
 {
     private readonly IRecipesContext _context;
+    private readonly IIngredientRepository _ingredientContext;
 
-    public RecipeRepository(IRecipesContext context)
+    public RecipeRepository(IRecipesContext context, IIngredientRepository ingredientContext)
     {
         _context = context;
+        _ingredientContext = ingredientContext;
     }
 
-    public Recipe AddRecipe(Recipe item)
+    public Recipe AddRecipe(InputRecipeDto item)
     {
         ExceptionTryCatch(item);
-        _context.Recipes.Add(item);
+        var toAdd = new Recipe
+        {
+            Name = item.Name,
+            RecipeType = item.RecipeType,
+            PreparationTime = item.PreparationTime,
+            Directions = item.Directions,
+            Rating = item.Rating
+        };
+        _context.Recipes.Add(toAdd);
         _context.SaveChanges();
+        var lastRecipeAdded = _context.Recipes.OrderByDescending(x => x.RecipeId).FirstOrDefault();
+        foreach (var ingredient in item.Ingredients)
+        {
+            _ingredientContext.AddIngredients(ingredient, lastRecipeAdded.RecipeId);
+        }
         return item;
     }
     public List<Recipe> GetRecipes()
@@ -58,7 +74,7 @@ public class RecipeRepository : IRecipeRepository
             throw new Exception("Nao Encontrado");
         }
     }
-    public Recipe UpdateRecipe(Recipe item, string name)
+    public Recipe UpdateRecipe(InputRecipeDto item, string name)
     {
         var toUpdate = _context.Recipes.Where(x => x.Name.ToLower() == name.ToLower()).FirstOrDefault();
         ExceptionTryCatch(item);
@@ -67,7 +83,6 @@ public class RecipeRepository : IRecipeRepository
             toUpdate.Name = item.Name;
             toUpdate.RecipeType = item.RecipeType;
             if (item.PreparationTime != 0) toUpdate.PreparationTime = item.PreparationTime;
-            // toUpdate.Ingredients = item.Ingredients;
             toUpdate.Directions = item.Directions;
             if (item.Rating != 0) toUpdate.Rating = item.Rating;
             _context.SaveChanges();
@@ -75,7 +90,8 @@ public class RecipeRepository : IRecipeRepository
         }        
         throw new Exception("recipe not found");
     }
-    public Exception ExceptionTryCatch(Recipe item)
+    
+    public void ExceptionTryCatch(InputRecipeDto item)
     {
         if (item.Name == null || item.Name == "" || item.Name == " " || item.Name == string.Empty)
         {
@@ -89,15 +105,14 @@ public class RecipeRepository : IRecipeRepository
         {
             throw new Exception("Preparation time must be greater than 0");
         }
-        // if (item.Ingredients == null || item.Ingredients.Count == 0)
-        // {
-        //     throw new Exception("Ingredients are required");
-        // }
+        if (item.Ingredients == null || item.Ingredients.Count == 0)
+        {
+            throw new Exception("Ingredients are required");
+        }
         if (item.Directions == null || item.Directions == "" || item.Directions == " " || item.Directions == string.Empty)
         {
             throw new Exception("Directions are required");
         }
-        return null;
     }
 
     

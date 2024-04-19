@@ -12,7 +12,7 @@ public class RecipesContext : DbContext, IRecipesContext
     public DbSet<User> Users { get; set; }
     public DbSet<Recipe> Recipes { get; set; }
     public DbSet<Comment> Comments { get; set; }
-    public DbSet<Ingredients> Ingredients { get; set; }
+    public DbSet<Ingredient> Ingredients { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)

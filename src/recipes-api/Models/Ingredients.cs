@@ -4,9 +4,9 @@ using System.ComponentModel;
 
 namespace recipes_api;
 
-public class Ingredients
+public class Ingredient
 {
-    public int IngredientsId { get; set; }
+    public int IngredientId { get; set; }
     public int RecipeId { get; set; }
     public Recipe Recipe { get; set; }
     public string Name { get; set; }

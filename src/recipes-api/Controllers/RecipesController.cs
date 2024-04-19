@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using recipes_api.Repositories;
+using recipes_api.Dto;
 
 namespace recipes_api.Controllers;
 
@@ -15,17 +16,18 @@ namespace recipes_api.Controllers;
 public class RecipesController : ControllerBase
 {
     public readonly IRecipeService _service;
-    public readonly IRecipeRepository _repository;
+    public readonly IRecipeRepository _recipeRepository;
+    public readonly IIngredientRepository _ingredientRepository;
 
     public RecipesController(IRecipeService service, IRecipeRepository repository)
     {
         _service = service;
-        _repository = repository;
+        _recipeRepository = repository;
     }
     [HttpGet]
     public IActionResult Get()
     {
-        return Ok(_repository.GetRecipes());
+        return Ok(_recipeRepository.GetRecipes());
     }
 
     [HttpGet("{name}", Name = "GetRecipe")]
@@ -33,7 +35,7 @@ public class RecipesController : ControllerBase
     {
         try
         {
-            return Ok(_repository.GetRecipe(name));
+            return Ok(_recipeRepository.GetRecipe(name));
         }
         catch (Exception ex)
         {
@@ -42,11 +44,11 @@ public class RecipesController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult Create([FromBody] Recipe recipe)
+    public IActionResult Create([FromBody] InputRecipeDto recipe)
     {
         try
         {
-        Recipe createdRecipe = _repository.AddRecipe(recipe);
+        Recipe createdRecipe = _recipeRepository.AddRecipe(recipe);
         return Created("", createdRecipe);
         }
         catch (Exception ex)
@@ -56,12 +58,12 @@ public class RecipesController : ControllerBase
     }
 
     [HttpPut("{name}")]
-    public IActionResult Update(string name, [FromBody] Recipe recipe)
+    public IActionResult Update(string name, [FromBody] InputRecipeDto recipe)
     {
         try
         {
-            _repository.RecipeExists(name);
-            _repository.UpdateRecipe(recipe, name);
+            _recipeRepository.RecipeExists(name);
+            _recipeRepository.UpdateRecipe(recipe, name);
             return NoContent();
         }
         catch(Exception ex)
@@ -76,7 +78,7 @@ public class RecipesController : ControllerBase
     {
         try
         {
-        _repository.DeleteRecipe(name);
+        _recipeRepository.DeleteRecipe(name);
         return NoContent();
         }
         catch (Exception ex)
