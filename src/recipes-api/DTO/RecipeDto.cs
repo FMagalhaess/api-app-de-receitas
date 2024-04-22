@@ -17,6 +17,8 @@ namespace recipes_api.Dto
     }
     public class InputRecipeDto
     {
+        public int? RecipeId { get; set; }
+
         public string Name { get; set; }
 
         public RecipesType RecipeType { get; set; }

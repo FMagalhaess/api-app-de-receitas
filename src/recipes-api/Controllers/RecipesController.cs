@@ -73,12 +73,12 @@ public class RecipesController : ControllerBase
     }
 
 
-    [HttpDelete("{name}")]
-    public IActionResult Delete(string name)
+    [HttpDelete("{recipeId}")]
+    public IActionResult Delete(string recipeId)
     {
         try
         {
-        _recipeRepository.DeleteRecipe(name);
+        _recipeRepository.DeleteRecipe(recipeId);
         return NoContent();
         }
         catch (Exception ex)

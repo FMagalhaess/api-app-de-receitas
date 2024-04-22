@@ -19,6 +19,18 @@ public class RecipeRepository : IRecipeRepository
     public Recipe AddRecipe(InputRecipeDto item)
     {
         ExceptionTryCatch(item);
+        Recipe toAdd = ConvertInputToOutputRecipe(item);
+        _context.Recipes.Add(toAdd);
+        var lastRecipeAdded = _context.Recipes.OrderByDescending(x => x.RecipeId).FirstOrDefault();
+        foreach (var ingredient in item.Ingredients)
+        {
+            _ingredientContext.AddIngredients(ingredient, lastRecipeAdded.RecipeId);
+        }
+        _context.SaveChanges();
+        return toAdd;
+    }
+    public Recipe ConvertInputToOutputRecipe(InputRecipeDto item)
+    {
         var toAdd = new Recipe
         {
             Name = item.Name,
@@ -27,29 +39,41 @@ public class RecipeRepository : IRecipeRepository
             Directions = item.Directions,
             Rating = item.Rating
         };
-        _context.Recipes.Add(toAdd);
-        _context.SaveChanges();
-        var lastRecipeAdded = _context.Recipes.OrderByDescending(x => x.RecipeId).FirstOrDefault();
-        foreach (var ingredient in item.Ingredients)
-        {
-            _ingredientContext.AddIngredients(ingredient, lastRecipeAdded.RecipeId);
-        }
-        return item;
+        return toAdd;
     }
-    public List<Recipe> GetRecipes()
+    public List<InputRecipeDto> GetRecipes()
     {
-        return _context.Recipes.ToList();
+        var recipes = (from recipe in _context.Recipes
+               select new InputRecipeDto
+               {
+                   RecipeId = recipe.RecipeId,
+                   Name = recipe.Name,
+                   RecipeType = recipe.RecipeType,
+                   PreparationTime = recipe.PreparationTime,
+                   Directions = recipe.Directions,
+                   Rating = recipe.Rating,
+                   Ingredients = (from ingredient in _context.Ingredients
+                                  where ingredient.RecipeId == recipe.RecipeId
+                                  select ingredient.Name).ToList()
+               }).ToList();
+
+                                        return recipes;
     }
 
-    public void DeleteRecipe(string name)
+    public void DeleteRecipe(string recipeId)
     {
-        if (!RecipeExists(name))
+        try
         {
-            throw new Exception("Nao Encontrado");
+            RecipeExists(recipeId);
+            int.TryParse(recipeId, out int recipeIdInput);
+            var toRemove = _context.Recipes.Where(x => x.RecipeId == recipeIdInput).FirstOrDefault();
+            _context.Recipes.Remove(toRemove);
+            _context.SaveChanges();
         }
-        var toRemove = _context.Recipes.Where(x => x.Name.ToLower() == name.ToLower()).FirstOrDefault();
-        _context.Recipes.Remove(toRemove);
-        _context.SaveChanges();
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
     }
     public Recipe GetRecipe(string name)
     {
@@ -65,29 +89,46 @@ public class RecipeRepository : IRecipeRepository
     }
     public bool RecipeExists(string name)
     {
-        if (_context.Recipes.Any(x => x.Name.ToLower() == name.ToLower()))
+
+        if (int.TryParse(name, out int recipeIdInput))
         {
-            return true;
+            if (_context.Recipes.Any(x => x.RecipeId == recipeIdInput))
+                {
+                    return true;
+                }
+                else
+                {
+                    throw new Exception("Nao Encontrado");
+                }
         }
-        else
-        {
-            throw new Exception("Nao Encontrado");
-        }
+            else
+            {
+                throw new Exception("Erro de conversao, preciso de um inteiro");
+            }
     }
     public Recipe UpdateRecipe(InputRecipeDto item, string name)
     {
-        var toUpdate = _context.Recipes.Where(x => x.Name.ToLower() == name.ToLower()).FirstOrDefault();
-        ExceptionTryCatch(item);
-        if (toUpdate != null)
+        try
         {
-            toUpdate.Name = item.Name;
-            toUpdate.RecipeType = item.RecipeType;
-            if (item.PreparationTime != 0) toUpdate.PreparationTime = item.PreparationTime;
-            toUpdate.Directions = item.Directions;
-            if (item.Rating != 0) toUpdate.Rating = item.Rating;
-            _context.SaveChanges();
-            return toUpdate;
-        }        
+            RecipeExists(name);
+            int.TryParse(name, out int recipeIdInput);
+            var toUpdate = _context.Recipes.Where(x => x.RecipeId == recipeIdInput).FirstOrDefault();
+            ExceptionTryCatch(item);
+            if (toUpdate != null)
+            {
+                toUpdate.Name = item.Name;
+                toUpdate.RecipeType = item.RecipeType;
+                if (item.PreparationTime != 0) toUpdate.PreparationTime = item.PreparationTime;
+                toUpdate.Directions = item.Directions;
+                if (item.Rating != 0) toUpdate.Rating = item.Rating;
+                _context.SaveChanges();
+                return toUpdate;
+            }        
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
         throw new Exception("recipe not found");
     }
     

@@ -6,7 +6,7 @@ namespace recipes_api.Repositories
     public interface IRecipeRepository
     {
         public Recipe AddRecipe(InputRecipeDto recipe);
-        public List<Recipe> GetRecipes();
+        public List<InputRecipeDto> GetRecipes();
         void DeleteRecipe(string name);
         public Recipe UpdateRecipe(InputRecipeDto item, string name);
         bool RecipeExists(string name);
