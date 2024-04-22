@@ -17,18 +17,30 @@ public class RecipeRepository : IRecipeRepository
     }
 
     public Recipe AddRecipe(InputRecipeDto item)
+{
+    ExceptionTryCatch(item);
+    Recipe toAdd = ConvertInputToOutputRecipe(item);
+    _context.Recipes.Add(toAdd);
+    _context.SaveChanges();
+
+    // Verificar se a receita foi adicionada corretamente
+    if (toAdd != null && toAdd.RecipeId > 0)
     {
-        ExceptionTryCatch(item);
-        Recipe toAdd = ConvertInputToOutputRecipe(item);
-        _context.Recipes.Add(toAdd);
-        var lastRecipeAdded = _context.Recipes.OrderByDescending(x => x.RecipeId).FirstOrDefault();
         foreach (var ingredient in item.Ingredients)
         {
-            _ingredientContext.AddIngredients(ingredient, lastRecipeAdded.RecipeId);
+            _ingredientContext.AddIngredients(ingredient, toAdd.RecipeId);
         }
         _context.SaveChanges();
-        return toAdd;
     }
+    else
+    {
+        // Log ou tratamento de erro, se necessário
+        throw new Exception("Falha ao adicionar a receita.");
+    }
+
+    return toAdd;
+}
+
     public Recipe ConvertInputToOutputRecipe(InputRecipeDto item)
     {
         var toAdd = new Recipe
@@ -75,9 +87,21 @@ public class RecipeRepository : IRecipeRepository
             throw new Exception(ex.Message);
         }
     }
-    public Recipe GetRecipe(string name)
+    public InputRecipeDto GetRecipe(string name)
     {
-        Recipe recipeToReturn = _context.Recipes.Where(x => x.Name.ToLower() == name.ToLower()).FirstOrDefault();
+        InputRecipeDto recipeToReturn = (from recipe in _context.Recipes
+               select new InputRecipeDto
+               {
+                   RecipeId = recipe.RecipeId,
+                   Name = recipe.Name,
+                   RecipeType = recipe.RecipeType,
+                   PreparationTime = recipe.PreparationTime,
+                   Directions = recipe.Directions,
+                   Rating = recipe.Rating,
+                   Ingredients = (from ingredient in _context.Ingredients
+                                  where ingredient.RecipeId == recipe.RecipeId
+                                  select ingredient.Name).ToList()
+               }).FirstOrDefault();
         if (recipeToReturn != null)
         {
             return recipeToReturn;
