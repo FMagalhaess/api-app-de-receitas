@@ -5,10 +5,5 @@ namespace recipes_api.Services;
 
 public interface IUserService
 {
-   void AddUser(User user);
-   void DeleteUser(string email);
-   void UpdateUser(User item);
-   bool UserExists(string email);
-   User GetUser(string email);
    
 }
