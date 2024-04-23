@@ -10,7 +10,7 @@ namespace recipes_api.Repositories
         void DeleteRecipe(string name);
         public Recipe UpdateRecipe(InputRecipeDto item, string name);
         bool RecipeExists(string name);
-        Recipe GetRecipe(string name);
+        InputRecipeDto GetRecipe(string name);
 
 
 

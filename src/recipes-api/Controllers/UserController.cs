@@ -6,6 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Security.Claims;
+using System.Net.Http.Headers;
 
 namespace recipes_api.Controllers;
 
@@ -13,11 +17,11 @@ namespace recipes_api.Controllers;
 [Route("user")]
 public class UserController : ControllerBase
 {
-    public readonly IUserService _service;
+    public readonly IUserRepository _userRepository;
 
-    public UserController(IUserService service)
+    public UserController(IUserRepository userRepository)
     {
-        _service = service;
+        _userRepository = userRepository;
     }
 
     [HttpGet("{email}", Name = "GetUser")]
@@ -25,20 +29,20 @@ public class UserController : ControllerBase
     {
         try
         {
-            return Ok(_service.GetUser(email));
+            return Ok(_userRepository.GetUser(email));
         }
         catch (Exception ex)
         {
-            return NotFound(new { ex.Message });
+            return Unauthorized(new { ex.Message });
         }
     }
 
-    [HttpPost]
+    [HttpPost("signup")]
     public IActionResult Create([FromBody] User user)
     {
         try
         {
-            _service.AddUser(user);
+            _userRepository.AddUser(user);
             return Created("", user);
         } catch (Exception ex)
         {
@@ -46,23 +50,46 @@ public class UserController : ControllerBase
         }
     }
 
-    [HttpPut("{email}")]
+    [HttpPatch("{email}")]
     public IActionResult Update(string email, [FromBody] User user)
     {
         throw new NotImplementedException();
     }
 
     [HttpDelete("{email}")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(Policy = "User")]
     public IActionResult Delete(string email)
     {
         try
         {
-            _service.DeleteUser(email);
+            var token = HttpContext.User.Identity as ClaimsIdentity;
+            var emailToken = token?.FindFirst(ClaimTypes.Email)?.Value;
+            _userRepository.DeleteUser(email);
             return NoContent();
         }
         catch (Exception ex)
         {
             return NotFound(new { ex.Message });
+        }
+    }
+    [HttpPost("login")]
+    public IActionResult Login([FromBody] User user)
+    {
+        try
+        {
+            var userFound = _userRepository.GetUser(user.Email);
+            if (userFound == null || userFound.Password != user.Password)
+            {
+                return Unauthorized(new { message = "Email ou senha incorretos" });
+            }
+
+            var token = new TokenGenerator().Generate(userFound);
+            return Ok(new { token });
+        }
+        catch (Exception ex)
+        {
+            return Unauthorized(new { message = "Erro ao autenticar: " + ex.Message });
         }
     }
 }

@@ -8,6 +8,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using recipes_api.Repositories;
 using recipes_api.Dto;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace recipes_api.Controllers;
 
@@ -44,6 +46,8 @@ public class RecipesController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(Policy = "User")]
     public IActionResult Create([FromBody] InputRecipeDto recipe)
     {
         try

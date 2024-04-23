@@ -12,6 +12,5 @@ public class IngredientRepository : IIngredientRepository
     {
         Ingredient ToReturn = new() { Name = item, RecipeId = recipeId };
         _context.Ingredients.Add(ToReturn);
-        _context.SaveChanges();
     }
 }
