@@ -89,7 +89,7 @@ public class RecipeRepository : IRecipeRepository
     }
     public InputRecipeDto GetRecipe(string name)
     {
-        InputRecipeDto recipeToReturn = (from recipe in _context.Recipes
+        InputRecipeDto recipeToReturn = (from recipe in _context.Recipes where recipe.Name == name
                select new InputRecipeDto
                {
                    RecipeId = recipe.RecipeId,

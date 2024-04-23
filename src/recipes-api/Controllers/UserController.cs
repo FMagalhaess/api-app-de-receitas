@@ -74,22 +74,22 @@ public class UserController : ControllerBase
         }
     }
     [HttpPost("login")]
-public IActionResult Login([FromBody] User user)
-{
-    try
+    public IActionResult Login([FromBody] User user)
     {
-        var userFound = _userRepository.GetUser(user.Email);
-        if (userFound == null || userFound.Password != user.Password)
+        try
         {
-            return Unauthorized(new { message = "Email ou senha incorretos" });
-        }
+            var userFound = _userRepository.GetUser(user.Email);
+            if (userFound == null || userFound.Password != user.Password)
+            {
+                return Unauthorized(new { message = "Email ou senha incorretos" });
+            }
 
-        var token = new TokenGenerator().Generate(userFound);
-        return Ok(new { token });
+            var token = new TokenGenerator().Generate(userFound);
+            return Ok(new { token });
+        }
+        catch (Exception ex)
+        {
+            return Unauthorized(new { message = "Erro ao autenticar: " + ex.Message });
+        }
     }
-    catch (Exception ex)
-    {
-        return Unauthorized(new { message = "Erro ao autenticar: " + ex.Message });
-    }
-}
 }
