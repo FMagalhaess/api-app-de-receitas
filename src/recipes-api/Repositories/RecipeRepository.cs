@@ -17,29 +17,29 @@ public class RecipeRepository : IRecipeRepository
     }
 
     public Recipe AddRecipe(InputRecipeDto item)
-{
-    ExceptionTryCatch(item);
-    Recipe toAdd = ConvertInputToOutputRecipe(item);
-    _context.Recipes.Add(toAdd);
-    _context.SaveChanges();
-
-    // Verificar se a receita foi adicionada corretamente
-    if (toAdd != null && toAdd.RecipeId > 0)
     {
-        foreach (var ingredient in item.Ingredients)
-        {
-            _ingredientContext.AddIngredients(ingredient, toAdd.RecipeId);
-        }
+        ExceptionTryCatch(item);
+        Recipe toAdd = ConvertInputToOutputRecipe(item);
+        _context.Recipes.Add(toAdd);
         _context.SaveChanges();
-    }
-    else
-    {
-        // Log ou tratamento de erro, se necessário
-        throw new Exception("Falha ao adicionar a receita.");
-    }
 
-    return toAdd;
-}
+        // Verificar se a receita foi adicionada corretamente
+        if (toAdd != null && toAdd.RecipeId > 0)
+        {
+            foreach (var ingredient in item.Ingredients)
+            {
+                _ingredientContext.AddIngredients(ingredient, toAdd.RecipeId);
+            }
+            _context.SaveChanges();
+        }
+        else
+        {
+            // Log ou tratamento de erro, se necessário
+            throw new Exception("Falha ao adicionar a receita.");
+        }
+
+        return toAdd;
+    }
 
     public Recipe ConvertInputToOutputRecipe(InputRecipeDto item)
     {
@@ -111,6 +111,54 @@ public class RecipeRepository : IRecipeRepository
             throw new Exception("Nao Encontrado");
         }
     }
+    public InputRecipeDto GetRecipe(int recipeId)
+    {
+        InputRecipeDto recipeToReturn = (from recipe in _context.Recipes where recipe.RecipeId == recipeId
+               select new InputRecipeDto
+               {
+                   RecipeId = recipe.RecipeId,
+                   Name = recipe.Name,
+                   RecipeType = recipe.RecipeType,
+                   PreparationTime = recipe.PreparationTime,
+                   Directions = recipe.Directions,
+                   Rating = recipe.Rating,
+                   Ingredients = (from ingredient in _context.Ingredients
+                                  where ingredient.RecipeId == recipe.RecipeId
+                                  select ingredient.Name).ToList()
+               }).FirstOrDefault();
+        if (recipeToReturn != null)
+        {
+            return recipeToReturn;
+        }
+        else
+        {
+            throw new Exception("Nao Encontrado");
+        }
+    }
+    public InputRecipeDto GetRecipeById(int recipeId)
+    {
+        InputRecipeDto recipeToReturn = (from recipe in _context.Recipes where recipe.RecipeId == recipeId
+               select new InputRecipeDto
+               {
+                   RecipeId = recipe.RecipeId,
+                   Name = recipe.Name,
+                   RecipeType = recipe.RecipeType,
+                   PreparationTime = recipe.PreparationTime,
+                   Directions = recipe.Directions,
+                   Rating = recipe.Rating,
+                   Ingredients = (from ingredient in _context.Ingredients
+                                  where ingredient.RecipeId == recipe.RecipeId
+                                  select ingredient.Name).ToList()
+               }).FirstOrDefault();
+        if (recipeToReturn != null)
+        {
+            return recipeToReturn;
+        }
+        else
+        {
+            throw new Exception("Nao Encontrado");
+        }
+    }
     public bool RecipeExists(string name)
     {
 
@@ -130,32 +178,46 @@ public class RecipeRepository : IRecipeRepository
                 throw new Exception("Erro de conversao, preciso de um inteiro");
             }
     }
-    public Recipe UpdateRecipe(InputRecipeDto item, string name)
+    public void UpdateRecipe(InputRecipeDto item, string name)
     {
-        try
-        {
             RecipeExists(name);
             int.TryParse(name, out int recipeIdInput);
-            var toUpdate = _context.Recipes.Where(x => x.RecipeId == recipeIdInput).FirstOrDefault();
-            ExceptionTryCatch(item);
-            if (toUpdate != null)
+            InputRecipeDto recipeFromContext = GetRecipeById(recipeIdInput);
+            if (item.Ingredients != null && item.Ingredients.Count > 0)
+                {
+                    DeleteAllIngredients(recipeIdInput);
+                    foreach (var ingredient in item.Ingredients)
+                    {
+                        _ingredientContext.AddIngredients(ingredient, recipeIdInput);
+                    }
+                    recipeFromContext.Ingredients = item.Ingredients;
+                }
+            Recipe Converted = ConvertInputToOutputRecipe(recipeFromContext);
+            if (recipeFromContext != null)
             {
-                toUpdate.Name = item.Name;
-                toUpdate.RecipeType = item.RecipeType;
-                if (item.PreparationTime != 0) toUpdate.PreparationTime = item.PreparationTime;
-                toUpdate.Directions = item.Directions;
-                if (item.Rating != 0) toUpdate.Rating = item.Rating;
+                UpdateName(item.Name, Converted);
+                if (item.PreparationTime != 0)
+                    Converted.PreparationTime = item.PreparationTime;
+                if (item.Directions != null && item.Directions != "" && item.Directions != " " && item.Directions != string.Empty)
+                    Converted.Directions = item.Directions;
+                if (item.Rating != 0)
+                    Converted.Rating = item.Rating;
+                _context.Recipes.Update(Converted);
                 _context.SaveChanges();
-                return toUpdate;
+                Console.WriteLine("New Name on context: " + Converted.Name);
             }        
-        }
-        catch (Exception ex)
-        {
-            throw new Exception(ex.Message);
-        }
-        throw new Exception("recipe not found");
     }
-    
+    public void DeleteAllIngredients(int recipeId)
+    {
+        _context.Ingredients.RemoveRange(_context.Ingredients.Where(x => x.RecipeId == recipeId));
+        _context.SaveChanges();
+    }
+    public void UpdateName(string newName, Recipe RecipeToUpdate)
+    {
+        Console.WriteLine("New Name: " + newName);
+        if (!string.IsNullOrWhiteSpace(RecipeToUpdate.Name))
+                    RecipeToUpdate.Name = newName;
+    }
     public void ExceptionTryCatch(InputRecipeDto item)
     {
         if (item.Name == null || item.Name == "" || item.Name == " " || item.Name == string.Empty)

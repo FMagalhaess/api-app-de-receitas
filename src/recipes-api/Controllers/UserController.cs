@@ -77,9 +77,10 @@ public class UserController : ControllerBase
     public IActionResult Login([FromBody] User user)
     {
         try
-        {
+        {   
             var userFound = _userRepository.GetUser(user.Email);
-            if (userFound == null || userFound.Password != user.Password)
+            var VerifyPassword = new HashPasswords().VerifyPassword(user.Password, userFound.Password);
+            if (userFound == null || VerifyPassword == false)
             {
                 return Unauthorized(new { message = "Email ou senha incorretos" });
             }

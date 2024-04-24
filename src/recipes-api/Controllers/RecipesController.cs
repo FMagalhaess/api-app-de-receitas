@@ -61,13 +61,13 @@ public class RecipesController : ControllerBase
         }
     }
 
-    [HttpPut("{name}")]
-    public IActionResult Update(string name, [FromBody] InputRecipeDto recipe)
+    [HttpPatch("{recipeId}")]
+    public IActionResult Update(string recipeId, [FromBody] InputRecipeDto recipe)
     {
         try
         {
-            _recipeRepository.RecipeExists(name);
-            _recipeRepository.UpdateRecipe(recipe, name);
+            _recipeRepository.RecipeExists(recipeId);
+            _recipeRepository.UpdateRecipe(recipe, recipeId);
             return NoContent();
         }
         catch(Exception ex)

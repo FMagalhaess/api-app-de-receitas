@@ -8,9 +8,10 @@ namespace recipes_api.Repositories
         public Recipe AddRecipe(InputRecipeDto recipe);
         public List<InputRecipeDto> GetRecipes();
         void DeleteRecipe(string name);
-        public Recipe UpdateRecipe(InputRecipeDto item, string name);
+        public void UpdateRecipe(InputRecipeDto item, string name);
         bool RecipeExists(string name);
         InputRecipeDto GetRecipe(string name);
+        InputRecipeDto GetRecipeById(int recipeId);
 
 
 

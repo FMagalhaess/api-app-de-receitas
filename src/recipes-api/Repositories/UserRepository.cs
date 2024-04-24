@@ -1,5 +1,7 @@
 using recipes_api.Repositories;
 using recipes_api.Services;
+using BCrypt.Net;
+
 namespace recipes_api.Repositories;
 public class UserRepository : IUserRepository
 {
@@ -13,8 +15,10 @@ public class UserRepository : IUserRepository
     {
         try
         {
-            user.Role ??= "User";
             ExceptionTryCatch(user);
+            string HashPassword = new HashPasswords().GenerateHash(user.Password);
+            user.Role ??= "User";
+            user.Password = HashPassword;
             _context.Users.Add(user);                
             _context.SaveChanges();
         }
