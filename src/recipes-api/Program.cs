@@ -21,7 +21,7 @@ builder.Services.AddDbContext<RecipesContext>();
 builder.Services.AddScoped<IRecipesContext, RecipesContext>();
 builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<CommentRepository>();
+builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<IIngredientRepository, IngredientRepository>();
 
 builder.Services.AddControllers();
