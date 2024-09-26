@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "recipes-api", "recipes-api\recipes-api.csproj", "{BEFA38E7-1319-49A1-AB26-ECBCEFAD61F1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "recipes-api.Test.Test", "recipes-api.Test.Test\recipes-api.Test.Test.csproj", "{CBEDA5A5-07D1-47CF-ACAB-BAACFC8F9463}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "recipes-front-end", "recipes-front-end\recipes-front-end.csproj", "{D021E63A-67F1-4626-8699-7BDE4DF031E0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,5 +28,9 @@ Global
 		{CBEDA5A5-07D1-47CF-ACAB-BAACFC8F9463}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CBEDA5A5-07D1-47CF-ACAB-BAACFC8F9463}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CBEDA5A5-07D1-47CF-ACAB-BAACFC8F9463}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D021E63A-67F1-4626-8699-7BDE4DF031E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D021E63A-67F1-4626-8699-7BDE4DF031E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D021E63A-67F1-4626-8699-7BDE4DF031E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D021E63A-67F1-4626-8699-7BDE4DF031E0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

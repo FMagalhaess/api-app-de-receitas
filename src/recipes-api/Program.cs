@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using recipes_api.Constants;
+using recipes_api;
 using (var db = new RecipesContext())
 {
     db.Database.EnsureCreated();
@@ -18,6 +19,15 @@ builder.Services.AddSingleton<IRecipeService, RecipeService>();
 builder.Services.AddSingleton<ICommentService, CommentService>();
 // Add services to the container.
 builder.Services.AddDbContext<RecipesContext>();
+builder.Services.AddCors(
+    x => x.AddPolicy(
+        Configuration.CorsPolicy,
+        x => x.WithOrigins(new string[] { Configuration.BackendUrl, Configuration.FrontEndUrl })
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials()
+    )
+);
 builder.Services.AddScoped<IRecipesContext, RecipesContext>();
 builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -56,6 +66,7 @@ builder.Services.AddAuthorization(options=>
 
 
 var app = builder.Build();
+app.UseCors(Configuration.CorsPolicy);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
